@@ -462,7 +462,11 @@ void vStore<__nv_bfloat16>(volatile __nv_bfloat16* ptr, const __nv_bfloat16 val)
 }
 #endif
 
+#if defined(_WIN32)
+typedef ulonglong2 Pack128;
+#else
 typedef ulong2 Pack128;
+#endif
 
 template<class FUNC, typename T>
 struct MULTI128 {

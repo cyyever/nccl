@@ -11,6 +11,11 @@
 #include "align.h"
 #include <stdint.h>
 
+#if defined(_WIN32) && !defined(ssize_t)
+#include <type_traits>
+using ssize_t = std::make_signed<size_t>::type;
+#endif
+
 #define NCCL_NUM_FUNCTIONS 5 // Send/Recv not included for now
 typedef enum { ncclFuncBroadcast, ncclFuncReduce, ncclFuncAllGather, ncclFuncReduceScatter, ncclFuncAllReduce, ncclFuncSendRecv, ncclFuncSend, ncclFuncRecv, ncclNumFuncs} ncclFunc_t;
 extern const char* ncclFuncStr[NCCL_NUM_FUNCTIONS];
@@ -173,8 +178,8 @@ enum ncclWorkElemSubType : uint8_t {
 struct ncclWorkElemHeader {
   uint16_t funcIndex;
   enum ncclWorkElemType type;
-  unsigned nWarps:5;
-  unsigned isLast:1;
+  unsigned char nWarps:5;
+  unsigned char isLast:1;
 };
 
 struct ncclWorkElem {
