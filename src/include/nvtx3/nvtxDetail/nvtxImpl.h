@@ -38,7 +38,6 @@
 
 #include <string.h>
 #include <sys/types.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <wchar.h>
 
