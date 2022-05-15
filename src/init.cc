@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <dlfcn.h>
+#include <mutex>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -62,12 +63,12 @@ ncclResult_t initGdrCopy() {
 
 NCCL_PARAM(L1SharedMemoryCarveout, "L1_SHARED_MEMORY_CARVEOUT", 0);
 
-pthread_mutex_t initLock = PTHREAD_MUTEX_INITIALIZER;
-static bool initialized = false;
 static size_t maxLocalSizeBytes = 0;
 static ncclResult_t ncclInit() {
+  static std::mutex initLock;
+  static bool initialized = false;
   if (initialized) return ncclSuccess;
-  pthread_mutex_lock(&initLock);
+  std::lock_guard<std::mutex> lk(initLock);
   if (!initialized) {
     initEnv();
     initGdrCopy();
@@ -78,7 +79,6 @@ static ncclResult_t ncclInit() {
     INFO(NCCL_INIT, "Using network %s", ncclNetName());
     initialized = true;
   }
-  pthread_mutex_unlock(&initLock);
   return ncclSuccess;
 }
 
